@@ -1,4 +1,4 @@
-# Estrutura de Dados 2025/2
+# Tópicos Especiais em Tecnologias na Educação 2025/2
 
 Repositório destinado aos códigos feitos na aula de Tópicos Especiais em Tecnologias na Educação 2025/2.
 
