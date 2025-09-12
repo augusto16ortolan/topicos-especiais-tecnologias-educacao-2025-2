@@ -1,10 +1,13 @@
-const produtos = require("../data/produtos");
+const produtoRepository = require("../repositories/produtoRepository");
 
 //Listar todos os produtos
-exports.listarProdutos = (req, res) => {
+exports.listarProdutos = async (req, res) => {
+  const produtos = await produtoRepository.buscarTodos();
+  const totalProdutos = await produtoRepository.contar();
+
   const response = {
     pageSize: produtos.length,
-    totalCount: 100,
+    totalCount: totalProdutos,
     data: produtos,
   };
 
@@ -12,7 +15,7 @@ exports.listarProdutos = (req, res) => {
 };
 
 //Buscar um produto por id
-exports.buscarProdutoPorId = (req, res) => {
+exports.buscarProdutoPorId = async (req, res) => {
   const produtoId = parseInt(req.params.id);
 
   if (isNaN(produtoId)) {
@@ -21,7 +24,7 @@ exports.buscarProdutoPorId = (req, res) => {
       .json({ mensagem: "Id inválido. Precisa ser um número" });
   }
 
-  const produto = produtos.find((p) => p.id == produtoId);
+  const produto = await produtoRepository.buscarPorId(produtoId);
 
   if (!produto) {
     return res
@@ -33,8 +36,7 @@ exports.buscarProdutoPorId = (req, res) => {
 };
 
 //Criar um novo produto
-exports.criarProduto = (req, res) => {
-  console.log(req.data);
+exports.criarProduto = async (req, res) => {
   const { nome, descricao, preco, quantidadeEmEstoque, categoriaId, marcaId } =
     req.body;
 
@@ -54,7 +56,6 @@ exports.criarProduto = (req, res) => {
   //validar se existe uma categoria com o categoriaId enviado
 
   const produto = {
-    id: produtos.length + 1,
     nome,
     descricao,
     preco,
@@ -62,12 +63,51 @@ exports.criarProduto = (req, res) => {
     categoriaId,
     marcaId,
   };
-  produtos.push(produto);
-  res.status(201).json(produto);
+
+  const produtoCriado = await produtoRepository.criarProduto(produto);
+
+  res.status(201).json(produtoCriado);
+};
+
+//Atualiza um produto
+exports.atualizarProduto = async (req, res) => {
+  const produtoId = parseInt(req.params.id);
+  const { nome, descricao, preco, quantidadeEmEstoque, categoriaId, marcaId } =
+    req.body;
+
+  if (isNaN(produtoId)) {
+    return res
+      .status(400)
+      .json({ mensagem: "Id inválido. Precisa ser um número" });
+  }
+
+  const produtoDoBanco = await produtoRepository.buscarPorId(produtoId);
+
+  if (!produtoDoBanco) {
+    return res
+      .status(404)
+      .json({ mensagem: `Produto com Id ${produtoId} não encontrado` });
+  }
+
+  const produtoParaAtualizar = {
+    id: produtoId,
+    nome,
+    descricao,
+    preco,
+    quantidadeEmEstoque,
+    categoriaId,
+    marcaId,
+  };
+
+  const produtoAtualizado = await produtoRepository.atualizarProduto(
+    produtoParaAtualizar
+  );
+
+  res.status(202).json(produtoAtualizado);
 };
 
 //Deletar um produto por id
-exports.deletarProdutoPorId = (req, res) => {
+exports.deletarProdutoPorId = async (req, res) => {
   const produtoId = parseInt(req.params.id);
 
   if (isNaN(produtoId)) {
@@ -76,15 +116,15 @@ exports.deletarProdutoPorId = (req, res) => {
       .json({ mensagem: "Id inválido. Precisa ser um número" });
   }
 
-  const index = produtos.findIndex((p) => p.id === produtoId);
+  const produtoDoBanco = await produtoRepository.buscarPorId(produtoId);
 
-  if (index === -1) {
+  if (!produtoDoBanco) {
     return res
       .status(404)
       .json({ mensagem: `Produto com Id ${produtoId} não encontrado` });
   }
 
-  produtos.splice(index, 1);
+  await produtoRepository.deletarProduto(produtoId);
 
   return res.status(204).send();
 };
