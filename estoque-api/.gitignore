@@ -20,3 +20,6 @@ out/
 .cache/
 .next/
 .nuxt/
+
+# Tests
+coverage/

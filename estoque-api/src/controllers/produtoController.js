@@ -103,7 +103,7 @@ exports.atualizarProduto = async (req, res) => {
     produtoParaAtualizar
   );
 
-  res.status(202).json(produtoAtualizado);
+  res.status(200).json(produtoAtualizado);
 };
 
 //Deletar um produto por id

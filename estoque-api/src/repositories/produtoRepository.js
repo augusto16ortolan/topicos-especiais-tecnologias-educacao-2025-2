@@ -1,4 +1,3 @@
-const { where } = require("sequelize");
 const { Produto } = require("../models");
 
 class ProdutoRepository {
