@@ -1,4 +1,6 @@
 const produtoRepository = require("../repositories/produtoRepository");
+const marcaRepository = require("../repositories/marcaRepository")
+const categoriaRepository = require("../repositories/categoriaRepository")
 
 //Listar todos os produtos
 exports.listarProdutos = async (req, res) => {
@@ -54,6 +56,20 @@ exports.criarProduto = async (req, res) => {
   //validar se a quantidadeEmEstoque é um numero e é positiva
   //validar se existe uma marca com o marcaId enviado
   //validar se existe uma categoria com o categoriaId enviado
+
+  const marca = await marcaRepository.buscarPorId(marcaId)
+  if (!marca) {
+    return res
+      .status(400)
+      .json({ mensagem: "A marca informada não existe" });
+  }
+
+  const categoria = await categoriaRepository.buscarPorId(categoriaId)
+  if (!categoria) {
+    return res
+      .status(400)
+      .json({ mensagem: "A categoria informada não existe" });
+  }
 
   const produto = {
     nome,

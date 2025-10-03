@@ -10,6 +10,11 @@ app.get("/statuscheck", (req, res) => {
 
 //Endpoints das entidades
 const produtoRoutes = require("./routes/produtoRoutes");
+const marcaRoutes = require("./routes/marcaRoutes")
+const categoriaRoutes = require("./routes/categoriaRoutes")
+
 app.use("/produtos", produtoRoutes);
+app.use("/categorias", categoriaRoutes);
+app.use("/marcas", marcaRoutes);
 
 module.exports = app;

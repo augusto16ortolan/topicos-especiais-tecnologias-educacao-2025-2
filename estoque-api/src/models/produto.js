@@ -28,10 +28,18 @@ const Produto = sequelize.define(
     categoriaId: {
       type: DataTypes.INTEGER,
       allowNull: false,
+      references: {
+        model: "categorias",
+        key: "id"
+      }
     },
     marcaId: {
       type: DataTypes.INTEGER,
       allowNull: false,
+      references: {
+        model: "marcas",
+        key: "id"
+      }
     },
   },
   {

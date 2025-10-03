@@ -1,4 +1,4 @@
-const { Produto } = require("../models");
+const { Produto, Marca, Categoria } = require("../models");
 
 class ProdutoRepository {
   async contar() {
@@ -6,11 +6,33 @@ class ProdutoRepository {
   }
 
   async buscarTodos() {
-    return await Produto.findAll();
+    return await Produto.findAll({
+      include: [
+        { model: Marca, as: "marca" },
+        { model: Categoria, as: "categoria" }
+      ]
+    });
   }
 
   async buscarPorId(id) {
-    return await Produto.findByPk(id);
+    return await Produto.findByPk(id, {
+      include: [
+        { model: Marca, as: "marca" },
+        { model: Categoria, as: "categoria" }
+      ]
+    });
+  }
+
+  async buscarPorMarcaId(marcaId) {
+    return await Produto.findAll({
+      where: { marcaId }
+    });
+  }
+
+  async buscarPorCategoriaId(categoriaId) {
+    return await Produto.findAll({
+      where: { categoriaId }
+    });
   }
 
   async criarProduto(produto) {
