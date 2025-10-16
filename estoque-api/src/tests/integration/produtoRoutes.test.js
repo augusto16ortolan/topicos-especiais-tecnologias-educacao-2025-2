@@ -2,6 +2,8 @@ const request = require("supertest");
 const app = require("../../app");
 const sequelize = require("../../config/database");
 const Produto = require("../../models/produto");
+const Categoria = require("../../models/categoria");
+const Marca = require("../../models/marca");
 
 beforeAll(async () => {
   await sequelize.sync({ force: true }); // recria tabelas em memória
@@ -13,6 +15,16 @@ afterAll(async () => {
 
 describe("Rotas de produtos", () => {
   let produtoId;
+  let categoriaId;
+  let marcaId;
+
+  beforeEach(async () => {
+    // Criar categoria e marca para os testes
+    const categoria = await Categoria.create({ descricao: "Eletrônicos" });
+    const marca = await Marca.create({ descricao: "Logitech" });
+    categoriaId = categoria.id;
+    marcaId = marca.id;
+  });
 
   it("POST /produtos deve criar um produto", async () => {
     const res = await request(app).post("/produtos").send({
@@ -20,8 +32,8 @@ describe("Rotas de produtos", () => {
       descricao: "Teclado mecânico ABNT2",
       preco: 150,
       quantidadeEmEstoque: 10,
-      categoriaId: 1,
-      marcaId: 1,
+      categoriaId: categoriaId,
+      marcaId: marcaId,
     });
 
     expect(res.statusCode).toBe(201);
@@ -52,8 +64,8 @@ describe("Rotas de produtos", () => {
       descricao: "Teclado mecânico ABNT2 atualizado",
       preco: 200,
       quantidadeEmEstoque: 8,
-      categoriaId: 1,
-      marcaId: 1,
+      categoriaId: categoriaId,
+      marcaId: marcaId,
     });
 
     expect(res.statusCode).toBe(200);

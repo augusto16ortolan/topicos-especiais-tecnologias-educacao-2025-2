@@ -1,5 +1,11 @@
 const produtoController = require("../../controllers/produtoController");
 const produtoRepository = require("../../repositories/produtoRepository");
+const { validationResult } = require("express-validator");
+
+// Mock do express-validator
+jest.mock("express-validator", () => ({
+  validationResult: jest.fn(),
+}));
 
 // Mock da response do Express
 const mockResponse = () => {
@@ -95,7 +101,18 @@ describe("Produto Controller - Unitários", () => {
       },
     };
 
+    // Mock validationResult para retornar sem erros
+    validationResult.mockReturnValue({
+      isEmpty: () => true,
+      array: () => []
+    });
+
+    // Mock dos repositories
     produtoRepository.criarProduto = jest.fn().mockResolvedValue(req.body);
+    const marcaRepository = require("../../repositories/marcaRepository");
+    const categoriaRepository = require("../../repositories/categoriaRepository");
+    marcaRepository.buscarPorId = jest.fn().mockResolvedValue({ id: 1, descricao: "Marca Test" });
+    categoriaRepository.buscarPorId = jest.fn().mockResolvedValue({ id: 1, descricao: "Categoria Test" });
 
     await produtoController.criarProduto(req, res);
 
@@ -108,11 +125,24 @@ describe("Produto Controller - Unitários", () => {
     const res = mockResponse();
     const req = { body: { nome: "Teclado" } };
 
+    // Mock validationResult para retornar erros de validação
+    validationResult.mockReturnValue({
+      isEmpty: () => false,
+      array: () => [
+        { msg: "Descrição é obrigatória", param: "descricao", location: "body" },
+        { msg: "Preço é obrigatório", param: "preco", location: "body" }
+      ]
+    });
+
     await produtoController.criarProduto(req, res);
 
     expect(res.status).toHaveBeenCalledWith(400);
     expect(res.json).toHaveBeenCalledWith({
-      mensagem: "Todos os dados são obrigatórios",
+      mensagem: "Dados inválidos",
+      erros: [
+        { msg: "Descrição é obrigatória", param: "descricao", location: "body" },
+        { msg: "Preço é obrigatório", param: "preco", location: "body" }
+      ]
     });
   });
 
@@ -129,11 +159,22 @@ describe("Produto Controller - Unitários", () => {
       },
     };
 
+    // Mock validationResult para retornar erros de validação
+    validationResult.mockReturnValue({
+      isEmpty: () => false,
+      array: () => [
+        { msg: "Preço deve ser um número maior que 0", param: "preco", location: "body" }
+      ]
+    });
+
     await produtoController.criarProduto(req, res);
 
     expect(res.status).toHaveBeenCalledWith(400);
     expect(res.json).toHaveBeenCalledWith({
-      mensagem: "O valor deve ser maior que 0",
+      mensagem: "Dados inválidos",
+      erros: [
+        { msg: "Preço deve ser um número maior que 0", param: "preco", location: "body" }
+      ]
     });
   });
 
@@ -154,8 +195,19 @@ describe("Produto Controller - Unitários", () => {
       },
     };
 
+    // Mock validationResult para retornar sem erros
+    validationResult.mockReturnValue({
+      isEmpty: () => true,
+      array: () => []
+    });
+
+    // Mock dos repositories
     produtoRepository.buscarPorId = jest.fn().mockResolvedValue({ id: 1 });
     produtoRepository.atualizarProduto = jest.fn().mockResolvedValue(req.body);
+    const marcaRepository = require("../../repositories/marcaRepository");
+    const categoriaRepository = require("../../repositories/categoriaRepository");
+    marcaRepository.buscarPorId = jest.fn().mockResolvedValue({ id: 1, descricao: "Marca Test" });
+    categoriaRepository.buscarPorId = jest.fn().mockResolvedValue({ id: 1, descricao: "Categoria Test" });
 
     await produtoController.atualizarProduto(req, res);
 
