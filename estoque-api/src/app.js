@@ -1,6 +1,11 @@
 const express = require("express");
+const { loggingMiddleware, requestIdMiddleware } = require("./middlewares")
 
 const app = express();
+
+app.use(requestIdMiddleware);
+app.use(loggingMiddleware);
+
 app.use(express.json());
 
 //Endpoint para verificar se o servidor está rodando

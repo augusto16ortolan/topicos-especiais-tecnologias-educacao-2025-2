@@ -18,9 +18,9 @@ exports.listarProdutos = async (req, res) => {
     res.json(response);
   } catch (error) {
     console.error("Erro ao listar produtos:", error);
-    res.status(500).json({ 
-      mensagem: "Erro interno do servidor ao listar produtos", 
-      erro: error.message 
+    res.status(500).json({
+      mensagem: "Erro interno do servidor ao listar produtos",
+      erro: error.message
     });
   }
 };
@@ -47,9 +47,9 @@ exports.buscarProdutoPorId = async (req, res) => {
     res.json(produto);
   } catch (error) {
     console.error("Erro ao buscar produto por ID:", error);
-    res.status(500).json({ 
-      mensagem: "Erro interno do servidor ao buscar produto", 
-      erro: error.message 
+    res.status(500).json({
+      mensagem: "Erro interno do servidor ao buscar produto",
+      erro: error.message
     });
   }
 };
@@ -97,9 +97,9 @@ exports.criarProduto = async (req, res) => {
     res.status(201).json(produtoCriado);
   } catch (error) {
     console.error("Erro ao criar produto:", error);
-    res.status(500).json({ 
-      mensagem: "Erro interno do servidor ao criar produto", 
-      erro: error.message 
+    res.status(500).json({
+      mensagem: "Erro interno do servidor ao criar produto",
+      erro: error.message
     });
   }
 };
@@ -170,9 +170,9 @@ exports.atualizarProduto = async (req, res) => {
     res.status(200).json(produtoAtualizado);
   } catch (error) {
     console.error("Erro ao atualizar produto:", error);
-    res.status(500).json({ 
-      mensagem: "Erro interno do servidor ao atualizar produto", 
-      erro: error.message 
+    res.status(500).json({
+      mensagem: "Erro interno do servidor ao atualizar produto",
+      erro: error.message
     });
   }
 };
@@ -200,9 +200,9 @@ exports.deletarProdutoPorId = async (req, res) => {
     return res.status(204).send();
   } catch (error) {
     console.error("Erro ao deletar produto:", error);
-    res.status(500).json({ 
-      mensagem: "Erro interno do servidor ao deletar produto", 
-      erro: error.message 
+    res.status(500).json({
+      mensagem: "Erro interno do servidor ao deletar produto",
+      erro: error.message
     });
   }
 };
