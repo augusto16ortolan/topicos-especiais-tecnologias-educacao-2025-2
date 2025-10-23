@@ -4,205 +4,155 @@ const categoriaRepository = require("../repositories/categoriaRepository");
 const { validationResult } = require("express-validator");
 
 //Listar todos os produtos
-exports.listarProdutos = async (req, res) => {
+exports.listarProdutos = async (req, res, next) => {
   try {
     const produtos = await produtoRepository.buscarTodos();
     const totalProdutos = await produtoRepository.contar();
-
     const response = {
       pageSize: produtos.length,
       totalCount: totalProdutos,
       data: produtos,
     };
-
     res.json(response);
   } catch (error) {
-    console.error("Erro ao listar produtos:", error);
-    res.status(500).json({
-      mensagem: "Erro interno do servidor ao listar produtos",
-      erro: error.message
-    });
+    error.publicMessage = 'Erro interno do servidor ao listar produtos';
+    next(error);
   }
 };
 
 //Buscar um produto por id
-exports.buscarProdutoPorId = async (req, res) => {
+exports.buscarProdutoPorId = async (req, res, next) => {
   try {
     const produtoId = parseInt(req.params.id);
-
     if (isNaN(produtoId)) {
-      return res
-        .status(400)
-        .json({ mensagem: "Id inválido. Precisa ser um número" });
+      const error = new Error('Id inválido. Precisa ser um número');
+      error.status = 400;
+      error.publicMessage = 'Id inválido. Precisa ser um número';
+      return next(error);
     }
-
     const produto = await produtoRepository.buscarPorId(produtoId);
-
     if (!produto) {
-      return res
-        .status(404)
-        .json({ mensagem: `Produto com Id ${produtoId} não encontrado` });
+      const error = new Error(`Produto com Id ${produtoId} não encontrado`);
+      error.status = 404;
+      error.publicMessage = `Produto com Id ${produtoId} não encontrado`;
+      return next(error);
     }
-
     res.json(produto);
   } catch (error) {
-    console.error("Erro ao buscar produto por ID:", error);
-    res.status(500).json({
-      mensagem: "Erro interno do servidor ao buscar produto",
-      erro: error.message
-    });
+    error.publicMessage = 'Erro interno do servidor ao buscar produto';
+    next(error);
   }
 };
 
 //Criar um novo produto
-exports.criarProduto = async (req, res) => {
+exports.criarProduto = async (req, res, next) => {
   try {
-    // Verificar erros de validação
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      return res.status(400).json({
-        mensagem: "Dados inválidos",
-        erros: errors.array()
-      });
+      const error = new Error('Dados inválidos');
+      error.status = 400;
+      error.publicMessage = 'Dados inválidos';
+      error.validation = errors.array();
+      return next(error);
     }
-
     const { nome, descricao, preco, quantidadeEmEstoque, categoriaId, marcaId } = req.body;
-
-    // Verificar se a marca existe
     const marca = await marcaRepository.buscarPorId(marcaId);
     if (!marca) {
-      return res
-        .status(400)
-        .json({ mensagem: "A marca informada não existe" });
+      const error = new Error('A marca informada não existe');
+      error.status = 400;
+      error.publicMessage = 'A marca informada não existe';
+      return next(error);
     }
-
-    // Verificar se a categoria existe
     const categoria = await categoriaRepository.buscarPorId(categoriaId);
     if (!categoria) {
-      return res
-        .status(400)
-        .json({ mensagem: "A categoria informada não existe" });
+      const error = new Error('A categoria informada não existe');
+      error.status = 400;
+      error.publicMessage = 'A categoria informada não existe';
+      return next(error);
     }
-
-    const produto = {
-      nome,
-      descricao,
-      preco,
-      quantidadeEmEstoque,
-      categoriaId,
-      marcaId,
-    };
-
+    const produto = { nome, descricao, preco, quantidadeEmEstoque, categoriaId, marcaId };
     const produtoCriado = await produtoRepository.criarProduto(produto);
     res.status(201).json(produtoCriado);
   } catch (error) {
-    console.error("Erro ao criar produto:", error);
-    res.status(500).json({
-      mensagem: "Erro interno do servidor ao criar produto",
-      erro: error.message
-    });
+    error.publicMessage = 'Erro interno do servidor ao criar produto';
+    next(error);
   }
 };
 
 //Atualiza um produto
-exports.atualizarProduto = async (req, res) => {
+exports.atualizarProduto = async (req, res, next) => {
   try {
-    // Verificar erros de validação
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      return res.status(400).json({
-        mensagem: "Dados inválidos",
-        erros: errors.array()
-      });
+      const error = new Error('Dados inválidos');
+      error.status = 400;
+      error.publicMessage = 'Dados inválidos';
+      error.validation = errors.array();
+      return next(error);
     }
-
     const produtoId = parseInt(req.params.id);
     const { nome, descricao, preco, quantidadeEmEstoque, categoriaId, marcaId } = req.body;
-
     if (isNaN(produtoId)) {
-      return res
-        .status(400)
-        .json({ mensagem: "Id inválido. Precisa ser um número" });
+      const error = new Error('Id inválido. Precisa ser um número');
+      error.status = 400;
+      error.publicMessage = 'Id inválido. Precisa ser um número';
+      return next(error);
     }
-
     const produtoDoBanco = await produtoRepository.buscarPorId(produtoId);
-
     if (!produtoDoBanco) {
-      return res
-        .status(404)
-        .json({ mensagem: `Produto com Id ${produtoId} não encontrado` });
+      const error = new Error(`Produto com Id ${produtoId} não encontrado`);
+      error.status = 404;
+      error.publicMessage = `Produto com Id ${produtoId} não encontrado`;
+      return next(error);
     }
-
-    // Verificar se a marca existe (se fornecida)
     if (marcaId) {
       const marca = await marcaRepository.buscarPorId(marcaId);
       if (!marca) {
-        return res
-          .status(400)
-          .json({ mensagem: "A marca informada não existe" });
+        const error = new Error('A marca informada não existe');
+        error.status = 400;
+        error.publicMessage = 'A marca informada não existe';
+        return next(error);
       }
     }
-
-    // Verificar se a categoria existe (se fornecida)
     if (categoriaId) {
       const categoria = await categoriaRepository.buscarPorId(categoriaId);
       if (!categoria) {
-        return res
-          .status(400)
-          .json({ mensagem: "A categoria informada não existe" });
+        const error = new Error('A categoria informada não existe');
+        error.status = 400;
+        error.publicMessage = 'A categoria informada não existe';
+        return next(error);
       }
     }
-
-    const produtoParaAtualizar = {
-      id: produtoId,
-      nome,
-      descricao,
-      preco,
-      quantidadeEmEstoque,
-      categoriaId,
-      marcaId,
-    };
-
-    const produtoAtualizado = await produtoRepository.atualizarProduto(
-      produtoParaAtualizar
-    );
-
+    const produtoParaAtualizar = { id: produtoId, nome, descricao, preco, quantidadeEmEstoque, categoriaId, marcaId };
+    const produtoAtualizado = await produtoRepository.atualizarProduto(produtoParaAtualizar);
     res.status(200).json(produtoAtualizado);
   } catch (error) {
-    console.error("Erro ao atualizar produto:", error);
-    res.status(500).json({
-      mensagem: "Erro interno do servidor ao atualizar produto",
-      erro: error.message
-    });
+    error.publicMessage = 'Erro interno do servidor ao atualizar produto';
+    next(error);
   }
 };
 
 //Deletar um produto por id
-exports.deletarProdutoPorId = async (req, res) => {
+exports.deletarProdutoPorId = async (req, res, next) => {
   try {
     const produtoId = parseInt(req.params.id);
-
     if (isNaN(produtoId)) {
-      return res
-        .status(400)
-        .json({ mensagem: "Id inválido. Precisa ser um número" });
+      const error = new Error('Id inválido. Precisa ser um número');
+      error.status = 400;
+      error.publicMessage = 'Id inválido. Precisa ser um número';
+      return next(error);
     }
-
     const produtoDoBanco = await produtoRepository.buscarPorId(produtoId);
-
     if (!produtoDoBanco) {
-      return res
-        .status(404)
-        .json({ mensagem: `Produto com Id ${produtoId} não encontrado` });
+      const error = new Error(`Produto com Id ${produtoId} não encontrado`);
+      error.status = 404;
+      error.publicMessage = `Produto com Id ${produtoId} não encontrado`;
+      return next(error);
     }
-
     await produtoRepository.deletarProduto(produtoId);
     return res.status(204).send();
   } catch (error) {
-    console.error("Erro ao deletar produto:", error);
-    res.status(500).json({
-      mensagem: "Erro interno do servidor ao deletar produto",
-      erro: error.message
-    });
+    error.publicMessage = 'Erro interno do servidor ao deletar produto';
+    next(error);
   }
 };

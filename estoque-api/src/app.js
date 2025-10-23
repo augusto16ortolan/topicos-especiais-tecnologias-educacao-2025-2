@@ -22,4 +22,8 @@ app.use("/produtos", produtoRoutes);
 app.use("/categorias", categoriaRoutes);
 app.use("/marcas", marcaRoutes);
 
+const { errorHandlerMiddleware, notFoundMiddleware } = require("./middlewares");
+app.use(notFoundMiddleware);
+app.use(errorHandlerMiddleware);
+
 module.exports = app;
