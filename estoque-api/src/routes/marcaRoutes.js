@@ -6,6 +6,9 @@ const {
   validarAtualizacaoMarca,
   validarIdParam
 } = require("../validators/marcaValidators");
+const authMiddleware = require("../middlewares/authMiddleware")
+
+router.use(authMiddleware)
 
 router.get("/", marcaController.listarMarcas);
 router.get("/:id", validarIdParam, marcaController.buscarMarcaPorId);

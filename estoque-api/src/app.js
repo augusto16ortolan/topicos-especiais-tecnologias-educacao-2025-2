@@ -17,10 +17,12 @@ app.get("/statuscheck", (req, res) => {
 const produtoRoutes = require("./routes/produtoRoutes");
 const marcaRoutes = require("./routes/marcaRoutes")
 const categoriaRoutes = require("./routes/categoriaRoutes")
+const authRoutes = require("./routes/authRoutes")
 
 app.use("/produtos", produtoRoutes);
 app.use("/categorias", categoriaRoutes);
 app.use("/marcas", marcaRoutes);
+app.use("/auth", authRoutes)
 
 const { errorHandlerMiddleware, notFoundMiddleware } = require("./middlewares");
 app.use(notFoundMiddleware);

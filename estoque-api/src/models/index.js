@@ -2,6 +2,7 @@ const sequelize = require("../config/database");
 const Produto = require("./produto");
 const Categoria = require("./categoria")
 const Marca = require("./marca")
+const Usuario = require("./usuario")
 
 Categoria.hasMany(Produto, {
   foreignKey: "categoriaId",
@@ -31,7 +32,8 @@ const db = {
   sequelize,
   Produto,
   Categoria,
-  Marca
+  Marca,
+  Usuario
 };
 
 module.exports = db;

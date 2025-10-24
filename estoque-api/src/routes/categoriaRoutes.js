@@ -6,6 +6,9 @@ const {
   validarAtualizacaoCategoria,
   validarIdParam
 } = require("../validators/categoriaValidators");
+const authMiddleware = require("../middlewares/authMiddleware")
+
+router.use(authMiddleware)
 
 router.get("/", categoriaController.listarCategorias);
 router.get("/:id", validarIdParam, categoriaController.buscarCategoriaPorId);

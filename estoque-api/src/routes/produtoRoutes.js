@@ -6,6 +6,9 @@ const {
   validarAtualizacaoProduto,
   validarIdParam
 } = require("../validators/produtoValidators");
+const authMiddleware = require("../middlewares/authMiddleware")
+
+router.use(authMiddleware)
 
 router.get("/", produtoController.listarProdutos);
 router.get("/:id", validarIdParam, produtoController.buscarProdutoPorId);
