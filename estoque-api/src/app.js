@@ -1,10 +1,13 @@
 const express = require("express");
-const { loggingMiddleware, requestIdMiddleware } = require("./middlewares")
+const { loggingMiddleware, requestIdMiddleware } = require("./middlewares");
+const { swaggerSpec, swaggerUI } = require("./config/swagger");
 
 const app = express();
 
 app.use(requestIdMiddleware);
 app.use(loggingMiddleware);
+
+app.use("/api-docs", swaggerUI.serve, swaggerUI.setup(swaggerSpec));
 
 app.use(express.json());
 
@@ -15,14 +18,14 @@ app.get("/statuscheck", (req, res) => {
 
 //Endpoints das entidades
 const produtoRoutes = require("./routes/produtoRoutes");
-const marcaRoutes = require("./routes/marcaRoutes")
-const categoriaRoutes = require("./routes/categoriaRoutes")
-const authRoutes = require("./routes/authRoutes")
+const marcaRoutes = require("./routes/marcaRoutes");
+const categoriaRoutes = require("./routes/categoriaRoutes");
+const authRoutes = require("./routes/authRoutes");
 
 app.use("/produtos", produtoRoutes);
 app.use("/categorias", categoriaRoutes);
 app.use("/marcas", marcaRoutes);
-app.use("/auth", authRoutes)
+app.use("/auth", authRoutes);
 
 const { errorHandlerMiddleware, notFoundMiddleware } = require("./middlewares");
 app.use(notFoundMiddleware);
